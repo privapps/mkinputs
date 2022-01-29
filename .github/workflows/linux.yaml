@@ -1,0 +1,41 @@
+name: Go Build 
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '^1.17.5' # The Go version to download (if necessary) and use.
+    - name: build
+      shell: bash
+      run: |
+        sudo apt-get update -y
+        sudo apt -y install gcc libc6-dev libx11-dev xorg-dev libxtst-dev libpng++-dev xcb libxcb-xkb-dev x11-xkb-utils
+        sudo apt-get install -y libx11-xcb-dev libxkbcommon-x11-dev libxkbcommon-dev xsel xclip gcc-multilib libz-mingw-w64-dev gcc-mingw-w64 
+        go get -d ./...
+        #dirty work around
+        sudo sed -i 's|geve == 0|geve|g' ~/go/pkg/mod/github.com/go-vgo/robotgo@v0.100.9/hook.go
+        bash linux-build.bash
+        cd bin
+        for i in `ls` ; do tar cJf $i.tar.xz $i ; done
+    - uses: actions/checkout@v2
+      with:
+        ref: latest-binaries
+        path: latest-binaries
+    - name: update latest binaries
+      shell: bash
+      run: |
+        cd latest-binaries
+        cp -f ../bin/*tar.xz .
+        git add -A .
+        git config --local user.email "privapps"
+        git config --local user.name "privapps"
+        git commit -m "sync with code $(date +'%F')" && \
+        git push "https://${GITHUB_ACTOR}:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" HEAD:latest-binaries || echo

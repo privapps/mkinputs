@@ -1,0 +1,41 @@
+name: Go Build 
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '^1.17.5' # The Go version to download (if necessary) and use.
+    - name: build
+      shell: bash
+      run: |
+        uname -a
+        go get -d ./...
+        TMP=$$
+        #dirty work around
+        sed 's|geve == 0|geve|g' ~/go/pkg/mod/github.com/go-vgo/robotgo@v0.100.9/hook.go >> $TMP
+        sudo mv $TMP ~/go/pkg/mod/github.com/go-vgo/robotgo@v0.100.9/hook.go
+        bash mac-build.bash
+        cd bin
+        for i in `ls` ; do tar cJf $i.tar.xz $i ; done
+    - uses: actions/checkout@v2
+      with:
+        ref: latest-binaries
+        path: latest-binaries
+    - name: update latest binaries
+      shell: bash
+      run: |
+        cd latest-binaries
+        cp -f ../bin/*tar.xz .
+        git add -A .
+        git config --local user.email "privapps"
+        git config --local user.name "privapps"
+        git commit -m "sync with code $(date +'%F')" && \
+        git push "https://${GITHUB_ACTOR}:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" HEAD:latest-binaries || echo
