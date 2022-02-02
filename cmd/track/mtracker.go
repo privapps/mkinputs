@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-vgo/robotgo"
 	hook "github.com/robotn/gohook"
 )
 
@@ -13,9 +14,8 @@ func main() {
 		hook.End()
 	})
 	hook.Register(hook.MouseHold, []string{"ctrl", "shift"}, func(e hook.Event) {
-		// x, y := robotgo.GetMousePos()
-		fmt.Printf("%v mouse => %v, %v\n", time.Now().Format(time.RFC3339), e.X, e.Y)
-
+		x, y := robotgo.GetMousePos()
+		fmt.Printf("%v mouse => %v, %v\n", time.Now().Format(time.RFC3339), x, y)
 	})
 
 	s := hook.Start()
