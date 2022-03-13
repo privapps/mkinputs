@@ -67,7 +67,7 @@ func act(cmds []CEntry) {
 		case "keydown":
 			robotgo.KeyDown(args[0])
 		case "typestr":
-			robotgo.TypeStr(args[0])
+			robotgo.TypeStr(strings.Join(args, " "))
 		case "keytoggle":
 			if len(args) < 1 {
 				panic("key toggle missing args")
