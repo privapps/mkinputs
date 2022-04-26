@@ -44,14 +44,6 @@ func getCmds() []CEntry {
 	return cmds
 }
 
-// func toInterface(args []string) []interface{} {
-// 	s := make([]interface{}, len(args))
-// 	for i, v := range args {
-// 		s[i] = v
-// 	}
-// 	return s
-// }
-
 func act(cmds []CEntry) {
 	for i, cmd := range cmds {
 		args := strings.Fields(cmd.args)
@@ -136,6 +128,27 @@ func act(cmds []CEntry) {
 				panic("missing args")
 			}
 			robotgo.Toggle(args...)
+		case "typespace":
+			var sc = 1
+			if len(args) > 0 {
+				arg2, err := strconv.Atoi(args[0])
+				if err != nil {
+					panic(err)
+				}
+				sc = arg2
+			}
+			for i := 0; i < sc; i++ {
+				robotgo.TypeStr(" ")
+			}
+		case "typearg":
+			if len(args) != 1 {
+				panic("only one argument expected")
+			}
+			position, err := strconv.Atoi(args[0])
+			if err != nil {
+				panic(err)
+			}
+			robotgo.TypeStr(os.Args[position])
 		default:
 			fmt.Println("unknown cmd " + cmd.cmd)
 		}

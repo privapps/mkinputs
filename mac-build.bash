@@ -10,7 +10,7 @@ gobuild (){
 
     package_name=$package
 
-    platforms=("darwin/arm64" "darwin/amd64" "linux/arm64")
+    platforms=("darwin/arm64" "darwin/amd64")
 
     for platform in "${platforms[@]}"
     do

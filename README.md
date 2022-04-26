@@ -8,20 +8,20 @@ For instance, testing software or website. Yes, for example, Selenium is good fo
 This is a small app with a minimum learning curve. You only need to create a yaml file, without a build or development environment, you can get the job done.
 
 ## How
-There are two executable files in the project, track is used for recording mouse position, and master is the program to do the job.
+There are two executable files in the project, track is used for recording mouse position, and mkinput is the program to do the job.
 
 Here is an example:
+### Use mouse to make mac sleep. screen 1450x900
 ```bash
-./master sleep.yaml
+./mkinput sleep.yaml
 ```
-worked on mac screen 1450x900
 ```yaml
 - mouse: 29 12
 - click:
 - mouse: 29 196
 - click:
 ```
-windows / linux switch program and input username/password and login
+### windows / linux switch program and input username/password and login
 ```yaml
 - keytab: tab alt
 - keyup: shift
@@ -32,10 +32,32 @@ windows / linux switch program and input username/password and login
 - keytab: tab
 - keytab: enter
 ```
+### ssh to a list servers and reboot them one by one with sudo
+```bash
+for i in `echo ip1 ip2 ip3 `; do ~/bin/mkinput reboot.yaml $i; done
+```
+```yaml
+- typestr: ssh <username>@ 
+- typearg: 2
+- keytab: enter
+- sleep: 2000
+- typestr: <password>
+- keytab: enter
+- sleep: 1000
+- typestr: sudo reboot
+- keytab: enter
+- sleep: 800
+- typestr: <password>
+- keytab: enter
+- sleep: 1000
+```
+
+
+
 You get the idea, it let you control your mouse and keyboard, with an yaml file, without a programming environment.
 
-## Use
-You can download the latest build from https://github.com/privapps/mkinputs/tree/latest-binaries
+## Use / Download
+You can [DOWNLOAD](https://github.com/privapps/mkinputs/tree/latest-binaries) the latest build from https://github.com/privapps/mkinputs/tree/latest-binaries
 Thanks golang's cross platform build, you should be able to find executables for most popular os/archetecture. You might need cygwin for windows.
 
 If you find this program is very slow in windows, blame on your antivirus software.
