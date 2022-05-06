@@ -18,7 +18,8 @@ jobs:
       run: |
         sudo apt-get update -y
         sudo apt -y install gcc libc6-dev libx11-dev xorg-dev libxtst-dev libpng++-dev xcb libxcb-xkb-dev x11-xkb-utils
-        sudo apt-get install -y libx11-xcb-dev libxkbcommon-x11-dev libxkbcommon-dev xsel xclip gcc-multilib libz-mingw-w64-dev gcc-mingw-w64 
+        sudo apt-get install -y libx11-xcb-dev libxkbcommon-x11-dev libxkbcommon-dev xsel xclip gcc-multilib libz-mingw-w64-dev gcc-mingw-w64
+        sudo apt-get install -y gcc-aarch64-linux-gnu gccgo-aarch64-linux-gnu
         go get -d ./...
         #dirty work around
         sudo sed -i 's|geve == 0|geve|g' ~/go/pkg/mod/github.com/go-vgo/robotgo@v0.100.9/hook.go

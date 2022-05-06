@@ -59,7 +59,7 @@ func act(cmds []CEntry) {
 		case "keydown":
 			robotgo.KeyDown(args[0])
 		case "typestr":
-			robotgo.TypeStr(strings.Join(args, " "))
+			robotgo.TypeStr(cmd.args)
 		case "keytoggle":
 			if len(args) < 1 {
 				panic("key toggle missing args")
@@ -93,6 +93,19 @@ func act(cmds []CEntry) {
 			} else {
 				robotgo.MoveSmooth(x, y, 0.3, 0.3)
 			}
+		case "move":
+			if len(args) != 2 {
+				panic("mouse move requires x, y")
+			}
+			x, err := strconv.Atoi(args[0])
+			if err != nil {
+				panic(err)
+			}
+			y, err := strconv.Atoi(args[1])
+			if err != nil {
+				panic(err)
+			}
+			robotgo.MoveRelative(x, y)
 		case "click":
 			switch len(args) {
 			case 0:

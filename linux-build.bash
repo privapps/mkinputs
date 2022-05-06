@@ -10,7 +10,7 @@ gobuild (){
 
     package_name=$package
 
-    platforms=("linux/amd64" "windows/amd64")
+    platforms=("linux/amd64" "windows/amd64") # "linux/arm64")
 
     for platform in "${platforms[@]}"
     do
@@ -23,7 +23,7 @@ gobuild (){
         mkdir -p $folder
         output_name=$(echo ${package_name} | awk -F'/' '{print $3}')
         if [ $GOARCH = "arm64" ]; then # TODO not work yet
-            ext_flag='CC=aarch64-linux-gnu-gcc-6'
+            ext_flag='CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++'
         elif [ $GOOS = "windows" ]; then
             ext_flag='CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ CGO_LDFLAGS=-static'
             output_name+='.exe'
