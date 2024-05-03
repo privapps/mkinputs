@@ -57,7 +57,8 @@ for i in `echo ip1 ip2 ip3 `; do ~/bin/mkinput reboot.yaml $i; done
 You get the idea, it let you control your mouse and keyboard, with an yaml file, without a programming environment.
 
 ## Use / Download
-You can [DOWNLOAD](https://github.com/privapps/mkinputs/tree/latest-binaries) the latest build from https://github.com/privapps/mkinputs/tree/latest-binaries
+It is recommanded to use the one in the release. Also the latest build from https://github.com/privapps/mkinputs/tree/dev-bin
+
 Thanks golang's cross platform build, you should be able to find executables for most popular os/archetecture. You might need cygwin for windows.
 
 If you find this program is very slow in windows, blame on your antivirus software.

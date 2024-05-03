@@ -1,0 +1,53 @@
+name: ARM64 Build
+
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - run: |
+        mkdir -p "${PWD}/artifacts"
+    - uses: actions/checkout@v3
+      with:
+        path: artifacts
+    - uses: uraimo/run-on-arch-action@v2
+      name: Run commands
+      id: runcmd
+      with:
+        arch: aarch64
+        distro: ubuntu20.04
+        dockerRunArgs: |
+            --volume "${PWD}/artifacts:/artifacts"
+        run: |
+          apt-get update -y
+          apt -y install gcc libc6-dev libx11-dev xorg-dev libxtst-dev libpng++-dev xcb libxcb-xkb-dev x11-xkb-utils
+          apt-get install -y libx11-xcb-dev libxkbcommon-x11-dev libxkbcommon-dev xsel xclip
+          apt-get install -y libx11-dev curl || echo
+          curl -OL https://go.dev/dl/go1.17.9.linux-arm64.tar.gz
+          tar -C /usr/local -xvf go1.17.9.linux-arm64.tar.gz
+          export PATH=/usr/local/go/bin:$PATH
+          cd /artifacts
+          go get -d ./...
+          #dirty work around
+          sed -i 's|geve == 0|geve|g' ~/go/pkg/mod/github.com/go-vgo/robotgo@v0.100.9/hook.go
+          env GOOS=linux GOARCH=arm64 CGO_ENABLED=1 go build -o bin/linux-arm64/track ./cmd/track/mtracker.go
+          env GOOS=linux GOARCH=arm64 CGO_ENABLED=1 go build -o bin/linux-arm64/mkinput ./cmd/mkinput/mkeyboard.go
+          cd bin
+          for i in `ls` ; do tar cJf $i.tar.xz $i ; done
+    - uses: actions/checkout@v2
+      with:
+        ref: dev-bin
+        path: dev-bin
+    - name: update latest binaries
+      shell: bash
+      run: |
+        cd dev-bin
+        cp -f ../artifacts/bin/*tar.xz .
+        git add -A .
+        git config --local user.email "privapps"
+        git config --local user.name "privapps"
+        git commit -m "sync with code $(date +'%F')" && \
+        git push "https://${GITHUB_ACTOR}:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" HEAD:dev-bin || echo
