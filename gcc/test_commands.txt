@@ -1,0 +1,20 @@
+keydown a b c 1 2 3
+sleep 100
+keyup a b c 1 2 3
+keydown cmd alt ctrl
+sleep 200
+keyup cmd alt ctrl
+keydown f1 f2 f3
+sleep 300
+keyup f1 f2 f3
+keydown audio_vol_up
+sleep 100
+keyup audio_vol_up
+mousemove 100 100
+sleep 500
+mousemove 500 500
+click
+sleep 1000
+keydown up down left right
+sleep 200
+keyup up down left right
