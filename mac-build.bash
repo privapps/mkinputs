@@ -23,7 +23,7 @@ gobuild (){
         mkdir -p $folder
         output_name=$(echo ${package_name} | awk -F'/' '{print $3}')
 
-        env GOOS=$GOOS GOARCH=$GOARCH CGO_ENABLED=1 go build -o $folder/$output_name $package
+        env GOOS=$GOOS GOARCH=$GOARCH CGO_ENABLED=1 go build -ldflags="-E _start -s -w" -o $folder/$output_name $package
         if [ $? -ne 0 ]; then
             echo 'An error has occurred! Aborting the script execution...'
             exit 1

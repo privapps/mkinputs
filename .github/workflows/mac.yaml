@@ -12,17 +12,13 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-go@v2
       with:
-        go-version: '^1.17.5' # The Go version to download (if necessary) and use.
+        go-version: '^1.23.0' # The Go version to download (if necessary) and use.
     - name: build
       shell: bash
       run: |
         uname -a
         go get -d ./...
-        TMP=$$
-        #dirty work around
-        sed 's|geve == 0|geve|g' ~/go/pkg/mod/github.com/go-vgo/robotgo@v0.100.9/hook.go >> $TMP
-        sudo mv $TMP ~/go/pkg/mod/github.com/go-vgo/robotgo@v0.100.9/hook.go
-        bash mac-build.bash
+        mac-build.bash
         cd bin
         for i in `ls` ; do tar cJf $i.tar.xz $i ; done
     - name: Release

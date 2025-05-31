@@ -68,7 +68,11 @@ func act(cmds []CEntry) {
 			case 1:
 				robotgo.KeyToggle(args[0])
 			default:
-				robotgo.KeyToggle(args[0], args[1:]...)
+				var ifaceArgs []interface{}
+				for _, s := range args[1:] {
+					ifaceArgs = append(ifaceArgs, s)
+				}
+				robotgo.KeyToggle(args[0], ifaceArgs...)
 			}
 		case "sleep":
 			s, err := strconv.Atoi(args[0])
@@ -140,7 +144,11 @@ func act(cmds []CEntry) {
 			if len(args) < 1 {
 				panic("missing args")
 			}
-			robotgo.Toggle(args...)
+			var ifaceArgs []interface{}
+			for _, s := range args {
+				ifaceArgs = append(ifaceArgs, s)
+			}
+			robotgo.Toggle(ifaceArgs...)
 		case "typespace":
 			var sc = 1
 			if len(args) > 0 {
@@ -162,6 +170,33 @@ func act(cmds []CEntry) {
 				panic(err)
 			}
 			robotgo.TypeStr(os.Args[position])
+		case "until-color":
+			if len(args) < 3 {
+				panic("minimum three arguments")
+			}
+			x, err := strconv.Atoi(args[0])
+			if err != nil {
+				panic(err)
+			}
+			y, err := strconv.Atoi(args[1])
+			if err != nil {
+				panic(err)
+			}
+			color := args[2]
+			maxIterations := 1500 // 5 mins
+			if len(args) > 3 {
+				if val, err := strconv.Atoi(args[3]); err == nil {
+					maxIterations = val
+				}
+			}
+			for i := 0; i < maxIterations; i++ {
+				current := robotgo.GetPixelColor(x, y)
+				if current == color {
+					break
+				}
+				fmt.Printf("Current color %v %v => %v, looking for %v\n", x, y, current, color)
+				robotgo.MilliSleep(200)
+			}
 		default:
 			fmt.Println("unknown cmd " + cmd.cmd)
 		}

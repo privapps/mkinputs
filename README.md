@@ -51,7 +51,13 @@ for i in `echo ip1 ip2 ip3 `; do ~/bin/mkinput reboot.yaml $i; done
 - keytab: enter
 - sleep: 1000
 ```
-
+Wait the button appear then click
+```yaml
+- wait-until: 1456 425 fefefe
+- mouse: 1456 425
+- sleep: 200
+- click:
+```
 
 
 You get the idea, it let you control your mouse and keyboard, with an yaml file, without a programming environment.
@@ -64,5 +70,5 @@ Thanks golang's cross platform build, you should be able to find executables for
 If you find this program is very slow in windows, blame on your antivirus software.
 
 ## Under the neat
-This is project is based on https://github.com/go-vgo/robotgo and it only use subset of it, see for details.
+This is project is based on https://github.com/go-vgo/robotgo and it only uses a subset of its features. See the documentation for details.
 And here for all keys https://github.com/go-vgo/robotgo/blob/master/docs/keys.md
