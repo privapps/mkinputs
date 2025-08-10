@@ -1,0 +1,15 @@
+# SSH and Reboot
+- typestr: ssh ${USER}@
+- typearg: 2
+- keytab: enter
+- sleep: 2000
+- typestr: ${PASSWORD}
+- keytab: enter
+- sleep: 1000
+- typestr: sudo reboot
+- keytab: enter
+- sleep: 800
+- typestr: ${PASSWORD}
+- keytab: enter
+- sleep: 1000
+

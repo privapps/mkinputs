@@ -1,67 +1,151 @@
-## What
-Golang executable programs that reads an yaml file and do the mouse and keyboard actions.
+## mkinputo: Automated Mouse & Keyboard Input via YAML
 
-## Why
-The input for a computer is all about mouse and keyboard, if have a program does it, we can do a lot of fancy things.
-For instance, testing software or website. Yes, for example, Selenium is good for web testing, but what happens for non-web stuff? Some other programs can do it but mostly requires a game engine that requires build etc.
+### What
+This project provides small, cross-platform Go programs to automate mouse and keyboard interactions, all described in a simple YAML file.
 
-This is a small app with a minimum learning curve. You only need to create a yaml file, without a build or development environment, you can get the job done.
+---
 
-## How
-There are two executable files in the project, track is used for recording mouse position, and mkinput is the program to do the job.
-
-Here is an example:
-### Use mouse to make mac sleep. screen 1450x900
+## Usage
+### mkinput (main executor)
+**Run actions from a YAML file:**
 ```bash
-./mkinput sleep.yaml
+./mkinput actions.yaml [extra arguments]
 ```
+- **actions.yaml**: Required. A YAML automation sequence (see below).
+- **[extra arguments]**: Optional. Used for `typearg` actions in YAML.
+- `--verbose`/`-v`: Optional. Print each action as it is executed (for debugging).
+
+**!! Security Warning: DO NOT store real passwords or secrets in plain YAML: use environment variables.**
+
+**Example:**
+```bash
+export MY_PASS=supersecret
+./mkinput reboot.yaml my_server_username
+```
+And in YAML:
+```yaml
+- typestr: ${MY_PASS}
+```
+All `${VARNAME}` expressions are replaced by their current environment variable.
+
+#### Supported YAML Actions
+| Action      | Example/Args                           | Effect                                                        |
+|-------------|----------------------------------------|---------------------------------------------------------------|
+| mouse       | `- mouse: x y`                         | Move mouse to absolute position (x, y)                        |
+| move        | `- move: dx dy`                        | Move mouse relative by (dx, dy)                               |
+| click       | `- click:` or `- click: left`          | Mouse click, optionally specifying button                     |
+| drag        | `- drag: x y`                          | Hold mouse and drag to (x, y)                                 |
+| sleep       | `- sleep: ms`                          | Wait for ms milliseconds                                      |
+| keytab      | `- keytab: enter shift`                | Press tab/key combination                                     |
+| keydown     | `- keydown: shift`                     | Hold down a key                                               |
+| keyup       | `- keyup: shift`                       | Release a key                                                 |
+| typestr     | `- typestr: your text here`            | Type a string of text                                         |
+| typearg     | `- typearg: n`                         | Type CLI argument n (os.Args[n])                              |
+| keytoggle   | `- keytoggle: key [down|up]`           | Toggle key on/off                                             |
+| toggle      | `- toggle: key kind`                   | For specialty toggles                                         |
+| typespace   | `- typespace: n`                       | Type n spaces                                                 |
+
+  For details and key codes, see: [robotgo keys](https://github.com/go-vgo/robotgo/blob/master/docs/keys.md)
+
+### track (mouse position recorder)
+Run with no arguments:
+```bash
+./track
+```
+**While running:**
+- `ctrl+q` — Quit
+- `ctrl+shift` + hold mouse — Print current mouse coordinates (for YAML editing)
+
+---
+
+## Example YAML Scenarios
+
+### 1. Make Mac Sleep via Mouse (1450x900 screen)
 ```yaml
 - mouse: 29 12
 - click:
 - mouse: 29 196
 - click:
 ```
-### windows / linux switch program and input username/password and login
+
+### 2. Login via Keyboard (Any OS)
 ```yaml
 - keytab: tab alt
 - keyup: shift
 - sleep: 100
 - typestr: <username>
 - keytab: tab
-- typestr: <password>
+- typestr: ${LOGIN_PASS}
 - keytab: tab
 - keytab: enter
 ```
-### ssh to a list servers and reboot them one by one with sudo
+
+### 3. SSH & Reboot multiple servers:
 ```bash
-for i in `echo ip1 ip2 ip3 `; do ~/bin/mkinput reboot.yaml $i; done
+for i in ip1 ip2 ip3; do ./mkinput reboot.yaml $i; done
 ```
 ```yaml
-- typestr: ssh <username>@ 
-- typearg: 2
+- typestr: ssh <username>@
+- typearg: 2   # Use command-line arg for hostname/user
 - keytab: enter
 - sleep: 2000
-- typestr: <password>
+- typestr: ${SSH_PASS}
 - keytab: enter
 - sleep: 1000
 - typestr: sudo reboot
 - keytab: enter
 - sleep: 800
-- typestr: <password>
+- typestr: ${SSH_PASS}
 - keytab: enter
 - sleep: 1000
 ```
 
+---
 
+## Command-line Reference
 
-You get the idea, it let you control your mouse and keyboard, with an yaml file, without a programming environment.
+### mkinput
+- Usage: `./mkinput action.yaml [args...]`
+- **Args:**
+  - `action.yaml`: Path to required YAML config
+  - `[args...]`: Extra args (referenced via `typearg`)
+  - `--verbose` or `-v`: Print each action command as it's executed.
+- **No other flags**. Invalid/missing YAML results in a clear error and (if present) line number.
 
-## Use / Download
-You can [DOWNLOAD](https://github.com/privapps/mkinputs/tree/latest-binaries) the latest build from https://github.com/privapps/mkinputs/tree/latest-binaries
-Thanks golang's cross platform build, you should be able to find executables for most popular os/archetecture. You might need cygwin for windows.
+### track
+- Usage: `./track`
+- No arguments or flags
 
-If you find this program is very slow in windows, blame on your antivirus software.
+---
 
-## Under the neat
-This is project is based on https://github.com/go-vgo/robotgo and it only use subset of it, see for details.
-And here for all keys https://github.com/go-vgo/robotgo/blob/master/docs/keys.md
+## Troubleshooting
+- **Missing YAML**: mkinput will exit with "Yaml file required".
+- **Parse errors**: The error message now shows the line number and a sample of the faulty line.
+- **Windows slowness**: disabling antivirus may help.
+- **OS-specific features**: Not all actions are supported on every OS.
+- ctrl+q or ctrl+shift (track) not working? Ensure the window has focus and input method is English/US.
+
+---
+
+## Supported OSes
+- macOS (all modern versions)
+- Linux (most x86/arm distros)
+- Windows (via Cygwin or similar, caveats apply)
+
+---
+
+## Linting
+
+This project uses golangci-lint to ensure code quality. Check or install via:
+```bash
+golangci-lint run
+```
+See `.golangci.yml` for configuration. Lint runs automatically in CI.
+
+---
+
+## Additional Notes
+- See [robotgo](https://github.com/go-vgo/robotgo) for low-level input docs/limitations.
+- Any questions, issues, or feature requests: please file on GitHub.
+
+---

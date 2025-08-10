@@ -1,0 +1,55 @@
+name: Tag & Release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_bump: patch
+          release_branches: main
+
+      - name: Build release binaries (Linux)
+        run: |
+          mkdir -p bin
+          GOOS=linux   GOARCH=amd64 go build -o bin/mkinput-linux-amd64 ./cmd/mkinput
+          GOOS=linux   GOARCH=amd64 go build -o bin/track-linux-amd64 ./cmd/track
+          GOOS=linux   GOARCH=arm64 go build -o bin/mkinput-linux-arm64 ./cmd/mkinput
+          GOOS=linux   GOARCH=arm64 go build -o bin/track-linux-arm64 ./cmd/track
+
+      - name: Build release binaries (Mac)
+        run: |
+          GOOS=darwin  GOARCH=amd64 go build -o bin/mkinput-darwin-amd64 ./cmd/mkinput
+          GOOS=darwin  GOARCH=amd64 go build -o bin/track-darwin-amd64 ./cmd/track
+
+      - name: Build release binaries (Windows)
+        run: |
+          GOOS=windows GOARCH=amd64 go build -o bin/mkinput-windows-amd64.exe ./cmd/mkinput
+          GOOS=windows GOARCH=amd64 go build -o bin/track-windows-amd64.exe ./cmd/track
+
+      - name: Archive binaries
+        run: |
+          cd bin
+          for f in *; do tar cJf "$f.tar.xz" "$f"; done
+
+      - name: Create GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
+          artifacts: "bin/*.tar.xz"
